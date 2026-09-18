@@ -2,10 +2,12 @@ package com.thehhr.form.nativeapp
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import com.thehhr.form.nativeapp.vault.VaultFiles
 import com.thehhr.form.nativeapp.vault.VaultFormat
 import com.thehhr.form.nativeapp.vault.VaultSnapshot
@@ -31,11 +33,19 @@ class VaultPlansScreenTest {
         compose.setContent {
             MaterialTheme { VaultPlansScreen(state, onOpenExercise = { opened = it }, onReload = {}) }
         }
-        compose.onNodeWithText("Morning strength").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Show exercises").performScrollTo().performClick()
-        compose.onNodeWithText("1. Sit-up").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("3 sets × 10 reps").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("View exercise").performScrollTo().performClick()
+        fun scrollTo(text: String) {
+            compose.onNode(hasScrollAction()).performScrollToNode(hasText(text))
+        }
+        scrollTo("Morning strength")
+        compose.onNodeWithText("Morning strength").assertIsDisplayed()
+        scrollTo("Show exercises")
+        compose.onNodeWithText("Show exercises").performClick()
+        scrollTo("1. Sit-up")
+        compose.onNodeWithText("1. Sit-up").assertIsDisplayed()
+        scrollTo("3 sets × 10 reps")
+        compose.onNodeWithText("3 sets × 10 reps").assertIsDisplayed()
+        scrollTo("View exercise")
+        compose.onNodeWithText("View exercise").performClick()
         compose.runOnIdle {
             assertEquals(exercise, opened)
             assertEquals(markdown, snapshot.file(VaultFiles.ROUTINES))
