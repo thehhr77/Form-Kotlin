@@ -394,6 +394,17 @@ private fun FormApp(model: FormViewModel = viewModel()) {
                         },
                         onDelete = { if (ManualLogging.blockReason(state) == null) deletingLog = it }
                     )
+                    run {
+                        val regions = MuscleMapMath.regionsForExercise(exercise.target, exercise.secondaryMuscles)
+                        if (regions.isNotEmpty()) {
+                            Text("Muscle map", style = MaterialTheme.typography.titleMedium)
+                            MuscleMapView(
+                                MuscleMapMath.exerciseEntries(regions, MuscleMapMath.accentRgb(accent)),
+                                MuscleMapMath.genderFor(state.data.config.sex),
+                                Modifier.fillMaxWidth().height(240.dp)
+                            )
+                        }
+                    }
                     Text("How to perform", style = MaterialTheme.typography.titleLarge)
                     if (exercise.instructions.isEmpty()) Text("No instructions provided.")
                     exercise.instructions.forEachIndexed { index, text -> Text("${index + 1}. $text") }

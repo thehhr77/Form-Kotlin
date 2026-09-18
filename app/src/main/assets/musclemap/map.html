@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html,body{margin:0;padding:0;background:transparent;overflow:hidden;height:100%}
+#frame{display:flex;gap:8px;height:100%}
+.view{flex:1 1 0;height:100%;min-width:0}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<div id="frame"><div id="front" class="view"></div><div id="back" class="view"></div></div>
+<script src="musclemap.bundle.js"></script>
+<script>
+"use strict";
+var lib = window.MuscleMapLib;
+function formMapStyle() {
+  var base = (typeof lib.resolveStyle === "function" ? lib.resolveStyle("neon") : {});
+  return Object.assign({}, base, { defaultFillColor: "#353535", hairColor: "#2a2a2a", headColor: "#454545", strokeWidth: 0, shadowRadius: 0 });
+}
+var maps = { front: null, back: null, gender: null };
+function ensure(gender) {
+  var style = formMapStyle();
+  if (!maps.front) maps.front = new lib.MuscleMapWidget(document.getElementById("front"), { gender: gender, side: "front", style: style, interactive: false });
+  if (!maps.back) maps.back = new lib.MuscleMapWidget(document.getElementById("back"), { gender: gender, side: "back", style: style, interactive: false });
+  sync(gender);
+}
+function sync(gender) {
+  if (maps.gender !== gender) {
+    maps.front.setGender(gender);
+    maps.back.setGender(gender);
+    maps.gender = gender;
+  }
+  maps.front.resize();
+  maps.back.resize();
+}
+window.FormMap = {
+  render: function (gender, showFront, showBack, entries) {
+    try {
+      if (!lib || !entries || !entries.length) return "empty";
+      ensure(gender);
+      document.getElementById("front").style.display = showFront ? "" : "none";
+      document.getElementById("back").style.display = showBack ? "" : "none";
+      sync(gender);
+      maps.front.setHeatmap(entries, {});
+      maps.back.setHeatmap(entries, {});
+      return "ok";
+    } catch (error) {
+      return "error: " + (error && error.message ? error.message : String(error));
+    }
+  }
+};
+</script>
+</body>
+</html>

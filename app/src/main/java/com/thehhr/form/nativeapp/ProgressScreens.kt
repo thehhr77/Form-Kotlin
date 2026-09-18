@@ -258,7 +258,7 @@ internal fun StatsScreen(state: FormState, onReload: () -> Unit, onOpenExercise:
             }
             if (logs.isEmpty()) item { Text("No logged exercises in this calendar range. This does not indicate completed workouts.") }
             if (categoryTotals.isNotEmpty()) item { CategoryBreakdownCard(categoryTotals) }
-            if (muscleTotals.isNotEmpty()) item { MuscleContributionCard(muscleTotals) }
+            if (muscleTotals.isNotEmpty()) item { MuscleContributionCard(muscleTotals, MuscleMapMath.accentKey(state), state.data.config.sex) }
             if (selectedDate != null) {
                 item(key = "drilldown:$selectedDate") {
                     ElevatedCard(Modifier.fillMaxWidth()) {
@@ -501,12 +501,17 @@ private fun muscleNumber(value: Double): String =
     else BigDecimal.valueOf(value).setScale(1, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
 
 @Composable
-private fun MuscleContributionCard(totals: List<StatsMath.MuscleWeight>) {
+private fun MuscleContributionCard(totals: List<StatsMath.MuscleWeight>, accent: String, sex: String?) {
     val maxSets = (totals.maxOfOrNull { it.sets } ?: 0.0).coerceAtLeast(0.5)
+    val mapEntries = remember(totals, accent) { MuscleMapMath.dashboardEntries(totals, MuscleMapMath.accentRgb(accent)) }
     ElevatedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Muscle contribution", style = MaterialTheme.typography.titleMedium)
             Text("Primary muscles count each set fully; mapped secondary muscles add 0.5 per set. Custom exercises without catalog muscle data are excluded.", style = MaterialTheme.typography.bodySmall)
+            if (mapEntries.isNotEmpty()) {
+                MuscleMapView(mapEntries, MuscleMapMath.genderFor(sex), Modifier.fillMaxWidth().height(300.dp))
+                Text("Body figure follows the profile sex setting. Darker regions carried a larger share of the period's sets.", style = MaterialTheme.typography.bodySmall)
+            }
             totals.forEach { entry ->
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("${entry.region.replaceFirstChar { it.uppercase() }.replace('-', ' ')} · ${muscleNumber(entry.sets)} sets", style = MaterialTheme.typography.bodyMedium)

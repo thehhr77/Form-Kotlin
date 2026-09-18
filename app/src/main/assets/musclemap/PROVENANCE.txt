@@ -1,0 +1,8 @@
+MuscleMapJS — https://github.com/abdofallah/MuscleMapJS
+Commit: 04a9862dd3238bd713a7fa73501da04783f70225 (main, MIT License)
+Built with: npx esbuild src/index.ts --bundle --format=iife --global-name=MuscleMapLib --minify
+Build date: 2026-09-19
+Notes: Bundled for the Form native Android app via WebView. The library is a
+TypeScript/Canvas port of the MuscleMap SwiftUI SDK by Melih Colpan
+(https://github.com/melihcolpan/MuscleMap), also MIT licensed. The MIT license
+text is included in this folder as LICENSE.
